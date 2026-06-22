@@ -1,7 +1,7 @@
 ---
 type: source
 title: 代码库与 docs 来源索引
-updated: 2026-06-17
+updated: 2026-06-22
 tags: [source, code-map, provenance]
 ---
 
@@ -34,12 +34,12 @@ tags: [source, code-map, provenance]
 
 ## 文档 `docs/`
 
-| 文件 | 内容 | 主要沉淀到 |
-|------|------|------------|
-| `docs/definition.md` | Definition schema：axes(const/var/expr)、inputs/outputs、reference、custom_inputs_entrypoint、例子 | [[components/data-models]] |
-| `docs/workload.md` | Workload schema：random/scalar/safetensors/custom、tolerance、评测器如何用 workload | [[components/data-models]]、[[concepts/correctness-protocol]] |
-| `docs/solution.md` | Solution schema：spec、DPS、compile_options、dependencies、各语言签名与例子 | [[components/data-models]] |
-| `docs/trace.md` | Trace schema：status、correctness/performance/environment、nullable 表、例子 | [[components/data-models]] |
+| 文件                   | 内容                                                                                          | 主要沉淀到                                                        |
+| -------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `docs/definition.md` | Definition schema：axes(const/var/expr)、inputs/outputs、reference、custom_inputs_entrypoint、例子 | [[components/data-models]]                                   |
+| `docs/workload.md`   | Workload schema：random/scalar/safetensors/custom、tolerance、评测器如何用 workload                  | [[components/data-models]]、[[concepts/correctness-protocol]] |
+| `docs/solution.md`   | Solution schema：spec、DPS、compile_options、dependencies、各语言签名与例子                              | [[components/data-models]]                                   |
+| `docs/trace.md`      | Trace schema：status、correctness/performance/environment、nullable 表、例子                       | [[components/data-models]]                                   |
 
 ## 顶层与脚本
 
@@ -49,7 +49,7 @@ tags: [source, code-map, provenance]
 | `CLAUDE.md`(repo 根) | 给 Claude Code 的代码库指南：架构三层、执行流、两种调用约定、测试标记 | [[components/architecture-and-flow]] |
 | `scripts/run_dataset.py` | 批量评测整个数据集（已过题默认跳过） | [[components/architecture-and-flow]] |
 | `scripts/run_docker.sh` / `download_data.sh` | 启容器（挂载 src/tests/data，可锁频）/ 下数据集 | [[components/architecture-and-flow]] |
-| `examples/` | 各 DSL 的示例解（pytorch/triton/cutlass/cudnn/cute_dsl/cutile/cuda_cpp） | [[components/data-models]] |
+| `examples/` | 各 DSL 的示例解（pytorch/triton/cutlass/cudnn/cute_dsl/cutile/cuda_cpp）；全量算子清单见 [[components/data-models]] §3.1 | [[components/data-models]] |
 
 ## 外部来源
 - 技术报告 arXiv:2603.19173 → 逐节要点见 [[sources/tech-report]]

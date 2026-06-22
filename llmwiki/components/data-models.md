@@ -1,7 +1,7 @@
 ---
 type: component
 title: 数据模型 — Definition / Workload / Solution / Trace
-updated: 2026-06-17
+updated: 2026-06-22
 sources: [docs/{definition,workload,solution,trace}.md, src/sol_execbench/core/data/, arXiv:2603.19173 §3.3]
 tags: [data-model, pydantic, schema, DPS, axes]
 ---
@@ -90,6 +90,28 @@ def run(input, weight, eps):
 实参顺序：先 inputs（按 Definition.inputs 顺序）后 outputs（按 Definition.outputs 顺序）。**默认 DPS** 的工程意义：输出 buffer 由评测器预分配，计时时配合 ShiftingMemoryPoolAllocator 复用、并能在每迭代清零（见 [[concepts/timing-and-reproducibility]] §3）；评测器对两种约定都支持（`eval_driver._call_and_collect_outputs`，见 [[components/evaluation-driver]]）。
 
 `sources` 是 `{path, content}` 数组，评测期被重建成目录结构（path 须相对、无 `..`、不重复）。
+
+### 3.1 `examples/` 各 DSL 样例算子清单
+仓库 `examples/` 下每种 DSL 各放了 1–3 个样例解，是理解"某 DSL 在本框架里怎么落地"的最短路径。当前全量清单（按 DSL 分组；`DPS` 列= `destination_passing_style`）：
+
+| DSL (`languages`) | 算子 / 问题 | solution 文件 | 入口 | DPS |
+|---|---|---|---|---|
+| `pytorch` | gemma3 SwiGLU | `examples/pytorch/gemma3_swiglu/` | `kernel.py::run` | false |
+| `pytorch` | linear backward | `examples/pytorch/linear_backward/` | `kernel.py::run` | false |
+| `triton` | nemotron RMSNorm | `examples/triton/nemotron_rms_norm/` | `kernel.py::run` | false |
+| `triton` | olmo3 post-norm + residual | `examples/triton/olmo3_post_norm/` | `kernel.py::run` | false |
+| `triton` | RMSNorm（前向） | `examples/triton/rmsnorm/` | `kernel.py::rmsnorm_fwd` | **true** |
+| `cutlass` | GEMM | `examples/cutlass/gemm/` | `main.cpp::run` | false |
+| `cudnn` | softmax | `examples/cudnn/softmax/` | `main.cu::run` | false |
+| `cuda_cpp` | flux RoPE | `examples/cuda_cpp/flux_rope/` | `kernel.cu::run` | false |
+| `cuda_cpp` | RMSNorm（Gemini-2.5-pro 产出） | `examples/cuda_cpp/rmsnorm/` | `main.cpp::run` | false |
+| `cute_dsl` | Jamba 注意力输出投影 + 残差 | `examples/cute_dsl/jamba_attn_proj/` | `kernel.py::run` | false |
+| **`cutile`** | **Jamba 注意力输出投影 + 残差** | **`examples/cutile/jamba_attn_proj/`** | **`kernel.py::run`** | **false** |
+
+观察（截至 2026-06-22 回填）：
+
+- **cuTile 当前只有 1 个样例算子**（`attn_proj_residual_cutile`），与 `cute_dsl` 是**同一个 Jamba 算子的两种 DSL 实现**——便于对照 GEMM + residual add 在 CuTe DSL vs cuTile 下的写法。cuTile 实现拆成 `matmul_kernel`（`ct.mma()`，tile 128×256×64）+ `add_kernel` 两个 kernel；测试用 `@pytest.mark.requires_cutile` 跑（需 SM 100+，对应 [[concepts/timing-and-reproducibility]] 的 Blackwell 门槛）。`tests/sol_execbench/samples/jamba_attn_proj/` 下有一份镜像，`tests/docker/dependencies/test_cutile.py` 是依赖冒烟测试（向量加，非算子样例）。**逐段深度剖析见 [[components/example-attn-proj-cutile]]**（含一个反直觉发现：名为 fused 实际并未融合）。
+- **`DPS` 默认是 `true`（§3 DPS 小节），但 11 个样例里 10 个写成 `false`（return-value 风格）**，唯一 `true` 的是 `examples/triton/rmsnorm`。即：默认值与样例的主流写法相反——样例倾向直接返回输出。评测器对两种约定都支持（见 [[components/evaluation-driver]]）。
 
 ## 4. Trace — 单次运行的不可变记录（"结果如何"）
 

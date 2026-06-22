@@ -1,7 +1,7 @@
 ---
 type: nav
 title: 内容目录 (Index)
-updated: 2026-06-17
+updated: 2026-06-22
 ---
 
 # 内容目录 (Index)
@@ -37,6 +37,7 @@ updated: 2026-06-17
 | [[components/architecture-and-flow]] | 三层架构 CLI / Driver / Core；端到端执行流；子进程隔离的设计动机 |
 | [[components/data-models]] | Definition / Workload / Solution / Trace 四个 Pydantic 模型的设计；symbolic axes (const/var/expr)；DPS |
 | [[components/evaluation-driver]] | `ProblemPackager` 暂存与编译；`eval_driver.py` ~650 行自包含脚本逐段剖析；防御检查的插入点 |
+| [[components/example-attn-proj-cutile]] | **样例剖析**：唯一的 cuTile 算子 `attn_proj_residual_cutile` 逐段；tiled GEMM + swizzle；Blackwell 2-CTA MMA；"名为 fused 实未融合"；与 cute_dsl 对照 |
 
 ## 来源 (Sources) — 原始材料摘要
 
@@ -55,3 +56,4 @@ updated: 2026-06-17
 - **"怎么保证测得准、测得稳"** → [[concepts/timing-and-reproducibility]]、[[concepts/correctness-protocol]]
 - **"数据集从哪来"** → [[concepts/benchmark-construction]]
 - **"代码怎么跑起来的"** → [[components/architecture-and-flow]]、[[components/evaluation-driver]]
+- **"某个 DSL 的算子长什么样"** → [[components/data-models]] §3.1（清单）、[[components/example-attn-proj-cutile]]（cuTile 深剖）

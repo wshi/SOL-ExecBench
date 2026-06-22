@@ -1,8 +1,9 @@
 ---
 type: nav
 title: 时间线 (Log)
-updated: 2026-06-17
+updated: 2026-06-22
 ---
+
 
 # 时间线 (Log)
 
@@ -22,6 +23,18 @@ updated: 2026-06-17
 
 ## [2026-06-17] lint | 首版一致性检查
 核对 SOL Score 公式（代码 `sol_score.py` ↔ 报告 §4.3 Eq.2）、reward-hack 防御表（代码 `reward_hack.py` ↔ 报告表 3）、计时参数（代码默认 vs 报告 §4.4 描述）三处一致性，已在相应页面标注代码与报告的差异点。
+
+## [2026-06-17] query | SOL-ExecBench 与 SOLAR 是否强依赖
+用户提问：本仓库是否强依赖 NVlabs/SOLAR。验证 `pyproject.toml`、全仓 `import solar` grep、`sol_score.py` 唯一使用点——结论：代码完全解耦，仅方法论强绑定（SOLAR 离线产出 `T_SOL` 烘焙进数据集，SOL Score 把它当纯 float 消费）。回填到 [[concepts/speed-of-light-and-solar]] §6 "与 SOL-ExecBench 的耦合关系"。
+
+## [2026-06-22] query | benchmark 算子用什么 DSL 写 + cuTile 算子清单
+用户两问：(1) 被测 kernel 支持哪些 DSL；(2) cuTile 写的算子有哪些。核对 `core/data/solution.py` 的 `SupportedLanguages` 枚举与全仓 `examples/**/solution*.json`。结论：solution 支持 7 类 DSL（pytorch/triton/cutlass/cudnn/cute_dsl/cutile/cuda_cpp），reference 始终 PyTorch；cuTile 当前仅 1 个样例算子 `attn_proj_residual_cutile`（Jamba 注意力输出投影+残差，与 `cute_dsl` 同算子双实现）。附带发现：11 个样例里 10 个 `DPS=false`，与 schema 默认 `true` 相反。回填到 [[components/data-models]] §3.1（新增"各 DSL 样例算子清单"表 + 两条观察），并更新 [[sources/code-and-docs-map]] 的 `examples/` 行指向它。
+
+## [2026-06-22] query | 深剖 attn_proj_residual_cutile 的 cuTile 实现
+用户要专门的分析报告。精读 `examples/cutile/jamba_attn_proj/{kernel.py,solution_cutile.json,definition.json}` 与对照组 `examples/cute_dsl/jamba_attn_proj/kernel.py`。新建 [[components/example-attn-proj-cutile]]：逐段剖析 `run` 编排 / `matmul_kernel`（tile MMA + group-M swizzle + fp32 累加 + ZERO padding + `num_ctas=ByTarget(sm_100=2)` 双-CTA） / `add_kernel`，提炼 cuTile 原语速记表。**关键发现**：定义名为 *fused* o_proj+residual，但 cuTile 版实为两 kernel + 物化中间张量、并未融合（cute_dsl 版亦然，且其 GEMM 直接外包 torch、仅手写 add）——已诚实标注为静态阅读的定性判断。接入 [[index]] 导航 + 速查，并从 [[components/data-models]] §3.1 链入。
+
+## [2026-06-22] lint | 全库一致性体检（含新 cuTile 页）
+对 18 个页面做体检并核对代码。**核对通过**：`eval_driver.py` 实为 655 行（各页"~650"准确）；cuTile 样例 [[components/example-attn-proj-cutile]] 的行号引用、`ConstInt = ct.Constant[int]` 均与 `examples/cutile/jamba_attn_proj/kernel.py` 一致；"11 样例 / 10 个 DPS=false"经 `find examples -name 'solution*.json'` 实测吻合；四级分类与精度分布各自加总 = 235；无孤儿页、无断裂 wikilink、无"被提及却缺主页"的概念。**修复两处**：(1) [[glossary]] 的 Solution 行只列 7 种语言，但 `core/data/solution.py::SupportedLanguages` 实为 **9** 值（漏 `cudnn_frontend`、`cublas`）——已对齐到 [[components/data-models]] §3 的权威清单；(2) [[components/example-attn-proj-cutile]] §2 的 `run` 代码片段把 `tm=128,...` 写成元组内关键字参（非法 Python），且 host grid 用 `cdiv` 而源码是 `math.ceil`——已改为位置参 + `ceil` 以忠实于源码。
 
 ---
 

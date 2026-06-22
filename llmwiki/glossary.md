@@ -1,7 +1,7 @@
 ---
 type: nav
 title: 术语表 (Glossary)
-updated: 2026-06-17
+updated: 2026-06-22
 ---
 
 # 术语表 (Glossary)
@@ -22,7 +22,7 @@ updated: 2026-06-17
 | **DPS (Destination-Passing Style)** | 目标传递风格：输出张量预分配、作为最后几个实参传入、原地写、不返回。默认约定。 | [[components/data-models]] |
 | **Definition** | 问题规格：算子契约（symbolic axes、输入输出张量、PyTorch reference）。 | [[components/data-models]] |
 | **Workload** | 把 Definition 实例化：给 var 轴绑定具体值 + 指定输入来源 + 容差。每问题约 16 个。 | [[components/data-models]] |
-| **Solution** | 候选 kernel：源码文件 + 构建规格 + 入口函数。支持 PyTorch/Triton/CUTLASS/cuDNN/CuTe DSL/cuTile/CUDA C++。 | [[components/data-models]] |
+| **Solution** | 候选 kernel：源码文件 + 构建规格 + 入口函数。`languages` 枚举共 **9** 值：Python 侧 PyTorch/Triton/CuTe DSL/cuTile/cuDNN-frontend，C++ 侧 CUTLASS/cuDNN/cuBLAS/CUDA C++。 | [[components/data-models]] |
 | **Trace** | 单次评测结果的不可变记录：status + correctness + performance + environment。 | [[components/data-models]] |
 | **symbolic axes** | 符号维度，分三类：`const`（定义期固定）/ `var`（workload 绑定）/ `expr`（由其它轴算出）。 | [[components/data-models]] |
 | **CUPTI** | CUDA Profiling Tools Interface。硬件级 profiling，测真实 GPU kernel 执行时间，排除 CPU launch 开销；代码默认计时法。 | [[concepts/timing-and-reproducibility]] |
